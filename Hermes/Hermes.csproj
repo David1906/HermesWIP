@@ -30,6 +30,9 @@
         <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
         <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.1.0" />
         <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
+        <PackageReference Include="ConfigFactory" Version="0.4.2" />
+        <PackageReference Include="ConfigFactory.Avalonia" Version="0.4.2" />
+        <PackageReference Include="ConfigFactory.Core" Version="0.4.2" />
         <PackageReference Include="Material.Icons.Avalonia" Version="2.1.10" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.7">
           <PrivateAssets>all</PrivateAssets>
@@ -58,6 +61,11 @@
         <DependentUpon>MainWindowView.axaml</DependentUpon>
         <SubType>Code</SubType>
       </Compile>
+      <Compile Update="Features\Settings\Translations.Designer.cs">
+        <DesignTime>True</DesignTime>
+        <AutoGen>True</AutoGen>
+        <DependentUpon>Translations.resx</DependentUpon>
+      </Compile>
       <Compile Update="Features\UutProcessor\StopView.axaml.cs">
         <DependentUpon>StopView.axaml</DependentUpon>
         <SubType>Code</SubType>
@@ -78,5 +86,16 @@
 
     <ItemGroup>
       <AdditionalFiles Include="Features\Splash\SplashView.axaml" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Common\Extensions\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Update="Features\Settings\Translations.resx">
+        <Generator>ResXFileCodeGenerator</Generator>
+        <LastGenOutput>Translations.Designer.cs</LastGenOutput>
+      </EmbeddedResource>
     </ItemGroup>
 </Project>

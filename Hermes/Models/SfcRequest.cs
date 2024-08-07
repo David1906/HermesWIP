@@ -13,7 +13,7 @@ public class SfcRequest
     public string FullPath { get; init; }
     public string Content => this.UnitUnderTest.Content;
 
-    public SfcRequest(UnitUnderTest unitUnderTest, string sfcInputPath, FileExtension fileExtension)
+    public SfcRequest(UnitUnderTest unitUnderTest, string path, string sfcResponseExtension)
     {
         this.UnitUnderTest = unitUnderTest;
         this.FullPath = Path.Combine(sfcInputPath, unitUnderTest.FileName);

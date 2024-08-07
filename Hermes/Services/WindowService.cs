@@ -6,6 +6,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using Hermes.Common.Messages;
 using Hermes.Features.UutProcessor;
+using Hermes.Features.Settings;
 using Hermes.Models;
 using SukiUI.Controls;
 using System.Threading.Tasks;
@@ -26,20 +27,23 @@ public class WindowService : ObservableRecipient
     private readonly SuccessViewModel _successViewModel;
     private readonly StopView _stopView;
     private readonly StopViewModel _stopViewModel;
-    private CancellationTokenSource _cts = new();
+    private readonly SettingsView _settingsView;
 
     public WindowService(
         Settings settings,
         SuccessView successView,
         SuccessViewModel successViewModel,
         StopView stopView,
-        StopViewModel stopViewModel)
+        StopViewModel stopViewModel,
+        SettingsView settingsView
+        )
     {
         this._settings = settings;
         this._successViewModel = successViewModel;
         this._successView = successView;
         this._stopView = stopView;
         this._stopViewModel = stopViewModel;
+        this._settingsView = settingsView;
         stopViewModel.Restored += this.OnStopViewModelRestored;
     }
 
@@ -49,7 +53,10 @@ public class WindowService : ObservableRecipient
         Messenger.Register<ShowStopMessage>(this, this.ShowStop);
         Messenger.Register<ShowToastMessage>(this, this.ShowToast);
         Messenger.Register<ExitMessage>(this, (_, __) => this.Stop());
+        Messenger.Register<ShowSettingsMessage>(this, this.ShowSettings);
     }
+
+    
 
     public void Stop()
     {
@@ -122,5 +129,9 @@ public class WindowService : ObservableRecipient
         {
             SukiHost.ShowToast(message.Title, message.Value, duration: TimeSpan.FromSeconds(message.Duration));
         });
+    }
+    private void ShowSettings(object recipient, ShowSettingsMessage message)
+    {
+        Dispatcher.UIThread.Invoke(() => { this._settingsView.Show(); });
     }
 }

@@ -24,6 +24,23 @@ public class FileService
             .Build();
     }
 
+    public void InitializeDirectories()
+    {
+        CreateDirectoryIfNotExists(_settings.InputPath);
+        CreateDirectoryIfNotExists(_settings.BackupPath);
+        CreateDirectoryIfNotExists(_settings.SfcPath);
+        CreateDirectoryIfNotExists(_settings.BackupSfcPath);
+    }
+
+    private void CreateDirectoryIfNotExists(string path)
+    {
+        if (!Directory.Exists(path))
+        {
+            Directory.CreateDirectory(path);
+        }
+    }
+
+
     public virtual async Task<string> TryReadAllTextAsync(string fullPath)
     {
         if (!FileExists(fullPath))

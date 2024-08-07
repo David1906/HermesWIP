@@ -13,9 +13,13 @@ public class FolderWatcherService
 
     public void Start(string path)
     {
-        this.ProcessExistingFiles(path);
-        this._watcher = new FileSystemWatcher(path);
-        this._watcher.Filter = this.Filter;
+        this._settings = settings; 
+    }
+
+    public void Start()
+    {
+        this.ProcessExistingFiles();
+        this._watcher = new FileSystemWatcher(this._settings.InputPath);
         this._watcher.Created += this.OnFileCreated;
         this._watcher.EnableRaisingEvents = true;
     }

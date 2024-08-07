@@ -17,8 +17,12 @@ using Hermes.Services;
 using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
 using System;
-using Hermes.Common.Validators;
-using Hermes.Features.SfcSimulator;
+using ConfigFactory.Avalonia.Helpers;
+using System.Text.Json;
+using System.IO;
+using System.Diagnostics;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace Hermes
 {
@@ -40,7 +44,8 @@ namespace Hermes
             Dispatcher.UIThread.UnhandledException += this.OnUnhandledException;
         }
 
-        public override void OnFrameworkInitializationCompleted()
+
+        public override async void OnFrameworkInitializationCompleted()
         {
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
@@ -52,8 +57,13 @@ namespace Hermes
                 this._windowService?.Start();
                 this._provider?.GetRequiredService<HermesContext>().Migrate();
                 if (mainViewModel != null) mainViewModel.IsActive = true;
+                BrowserDialog.StorageProvider = desktop.MainWindow.StorageProvider;
             }
 
+                // Crear Carpetas
+                var fileService = this._provider?.GetRequiredService<FileService>();
+                fileService?.InitializeDirectories();
+            
             base.OnFrameworkInitializationCompleted();
         }
 
@@ -68,6 +78,33 @@ namespace Hermes
         private IServiceProvider ConfigureServices()
         {
             var services = new ServiceCollection();
+
+            // Cargar los settings desde Config.json
+            string settingsFilePath = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "Settings",
+                "Config.json");
+
+            Settings settings;
+            if (File.Exists(settingsFilePath))
+            {
+                try
+                {
+                    var encryptedJson = File.ReadAllText(settingsFilePath);
+                    var json = Decrypt(encryptedJson);
+                    settings = JsonSerializer.Deserialize<Settings>(json);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error loading settings: {ex.Message}");
+                    settings = new Settings();
+                }
+            }
+            else
+            {
+                settings = new Settings();
+                settings.Save();
+            }
 
             // Settings
             services.AddSingleton<Settings>();
@@ -127,8 +164,33 @@ namespace Hermes
             services.AddTransient<SuccessViewModel>();
             services.AddTransient<TokenView>();
             services.AddTransient<TokenViewModel>();
-
+            services.AddTransient<SettingsView>();
             return services.BuildServiceProvider();
+        }
+
+        private static string Decrypt(string cipherText)
+        {
+            try
+            {
+                byte[] Key = Encoding.UTF8.GetBytes("12345678901234567890123456789012");
+                byte[] IV = Encoding.UTF8.GetBytes("1234567890123456");
+
+                using Aes aes = Aes.Create();
+                aes.Key = Key;
+                aes.IV = IV;
+
+                ICryptoTransform decryptor = aes.CreateDecryptor(aes.Key, aes.IV);
+
+                using MemoryStream ms = new(Convert.FromBase64String(cipherText));
+                using CryptoStream cs = new(ms, decryptor, CryptoStreamMode.Read);
+                using StreamReader sr = new(cs);
+                return sr.ReadToEnd();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Decryption error: {ex.Message}");
+                throw;
+            }
         }
     }
 }

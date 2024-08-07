@@ -10,6 +10,9 @@ using SukiUI;
 using System.Collections.Generic;
 using System.Linq;
 
+// Alias para la clase Settings
+using SettingsClass = Hermes.Models.Settings;
+
 namespace Hermes.Features
 {
     public partial class MainWindowViewModel : ViewModelBase, IRecipient<NavigateMessage>
@@ -21,7 +24,8 @@ namespace Hermes.Features
 
         private readonly SukiTheme _theme;
 
-        public MainWindowViewModel(IEnumerable<PageBase> pages, Settings settings)
+        
+        public MainWindowViewModel(IEnumerable<PageBase> pages, SettingsClass settings)
         {
             this.Pages = new AvaloniaList<PageBase>(pages.OrderBy(x => x.Index).ThenBy(x => x.DisplayName));
             this._theme = SukiTheme.GetInstance();
@@ -32,6 +36,7 @@ namespace Hermes.Features
                 Messenger.Send(new StartUutProcessorMessage());
             }
         }
+        
 
         [RelayCommand]
         private void ToggleBaseTheme()
@@ -59,6 +64,18 @@ namespace Hermes.Features
         private void Exit(Window window)
         {
             Messenger.Send(new ExitMessage());
+        }
+
+        [RelayCommand]
+        private void ShowSettings(Window window)
+        {
+            Messenger.Send(new ShowSettingsMessage());
+        }
+
+        [RelayCommand]
+        private void ShowSnackbar()
+        {
+            Messenger.Send(new ShowToastMessage("Hello!", "This is a snackbar!"));
         }
 
         public void Receive(NavigateMessage message)

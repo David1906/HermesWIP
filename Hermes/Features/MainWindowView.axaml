@@ -48,7 +48,7 @@
                       ToolTip.Tip="Makes the app fullscreen." />
         </MenuItem>
         <MenuItem Header="Settings">
-            <MenuItem Header="General Settings">
+            <MenuItem Header="General Settings" Command="{Binding ShowSettingsCommand}">
                 <MenuItem.Icon>
                     <avalonia:MaterialIcon Kind="Settings" />
                 </MenuItem.Icon>
